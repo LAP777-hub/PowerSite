@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reports | PowerSite{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>My Reports</h1>
+    <p class="subtitle">
+        View all the electricity issues you’ve reported and track their progress.
+    </p>
+
+    <form method="get" class="filter-bar">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by title..." class="filter-input">
+
+        <select name="status" class="filter-select">
+            <option value="">All Statuses</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="type" class="filter-select">
+            <option value="">All Types</option>
+            {% for value, label in issue_type_choices %}
+                <option value="{{ value }}" {% if issue_type_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-primary">Filter</button>
+        <a href="{% url 'my_reports' %}" class="btn-secondary">Reset</a>
+    </form>
+
+    <div class="report-table-wrap">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Area</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in reports %}
+                <tr>
+                    <td>
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="Report image" class="report-thumb">
+                        {% else %}
+                            <span class="muted-text">No image</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ item.title }}</strong></td>
+                    <td>{{ item.get_issue_type_display }}</td>
+                    <td>{{ item.area_name }}</td>
+                    <td>
+                        <span class="badge status-{{ item.status }}">
+                            {{ item.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ item.created_at|date:"d M Y H:i" }}</td>
+                    <td>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <a href="{% url 'track_issue' item.id %}" class="link-btn">Track →</a>
+
+                            <form method="post" action="{% url 'delete_report' item.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-secondary small-action-btn">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No reports found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

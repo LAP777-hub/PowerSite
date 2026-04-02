@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Technician Dashboard | PowerSite{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Manage Reports</h1>
+    <p class="subtitle">Technician view: work on reports assigned to you.</p>
+
+    <div class="report-table-wrap">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Area</th>
+                    <th>Status</th>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in reports %}
+                <tr>
+                    <td><strong>{{ item.title }}</strong></td>
+                    <td>{{ item.get_issue_type_display }}</td>
+                    <td>{{ item.area_name }}</td>
+                    <td><span class="badge status-{{ item.status }}">{{ item.get_status_display }}</span></td>
+                    <td>{{ item.user.username }}</td>
+                    <td>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <a href="{% url 'track_issue' item.id %}" class="link-btn">View</a>
+                            <a href="{% url 'technician_update_status' item.id 'in_progress' %}" class="link-btn">Start</a>
+                            <a href="{% url 'technician_update_status' item.id 'resolved' %}" class="link-btn">Done</a>
+                            <a href="{% url 'technician_update_status' item.id 'incomplete' %}" class="link-btn">Incomplete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No reports assigned to you yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

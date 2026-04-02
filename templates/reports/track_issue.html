@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Report | PowerSite{% endblock %}
+
+{% block content %}
+
+<section class="track-grid">
+
+    <!-- LEFT PANEL -->
+    <div class="panel">
+        <h1>{{ report.title }}</h1>
+        <p class="subtitle">
+            Track the full progress of this report and review the issue details below.
+        </p>
+
+        <div class="form-group">
+            <label>Issue Type</label>
+            <p>{{ report.get_issue_type_display }}</p>
+        </div>
+
+        <div class="form-group">
+            <label>Area / Landmark</label>
+            <p>{{ report.area_name }}</p>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <p>{{ report.description }}</p>
+        </div>
+
+        <div class="form-group">
+            <label>Current Status</label>
+            <span class="badge">{{ report.get_status_display }}</span>
+        </div>
+
+        <div class="form-group">
+            <label>Date Reported</label>
+            <p>{{ report.created_at|date:"d M Y H:i" }}</p>
+        </div>
+
+        {% if report.image %}
+        <div class="form-group">
+            <label>Uploaded Image</label>
+            <img src="{{ report.image.url }}" alt="Issue image" class="preview-image">
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+        <h2>Repair Progress</h2>
+        <p class="subtitle">
+            This shows where the report currently is in the process.
+        </p>
+
+        <div class="timeline">
+            <div class="timeline-step {% if report.status == 'received' or report.status == 'under_review' or report.status == 'assigned' or report.status == 'in_progress' or report.status == 'resolved' %}active{% endif %}">
+                Received
+            </div>
+
+            <div class="timeline-step {% if report.status == 'under_review' or report.status == 'assigned' or report.status == 'in_progress' or report.status == 'resolved' %}active{% endif %}">
+                Under Review
+            </div>
+
+            <div class="timeline-step {% if report.status == 'assigned' or report.status == 'in_progress' or report.status == 'resolved' %}active{% endif %}">
+                Assigned
+            </div>
+
+            <div class="timeline-step {% if report.status == 'in_progress' or report.status == 'resolved' %}active{% endif %}">
+                In Progress
+            </div>
+
+            <div class="timeline-step {% if report.status == 'resolved' %}active{% endif %}">
+                Resolved
+            </div>
+        </div>
+
+        <div id="track-map" class="map-box"></div>
+
+        <input type="hidden" id="track-lat" value="{{ report.latitude|default:'' }}">
+        <input type="hidden" id="track-lng" value="{{ report.longitude|default:'' }}">
+
+        <div class="map-note" style="margin-top:16px;">
+            <strong>Tracking Note:</strong>
+            {% if report.status == 'received' %}
+                Your report has been received and is waiting for review.
+            {% elif report.status == 'under_review' %}
+                Your report is currently being reviewed by the municipal team.
+            {% elif report.status == 'assigned' %}
+                A worker or technician has been assigned to this report.
+            {% elif report.status == 'in_progress' %}
+                Work is currently in progress on this issue.
+            {% elif report.status == 'resolved' %}
+                This issue has been marked as resolved.
+            {% else %}
+                Report status available.
+            {% endif %}
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

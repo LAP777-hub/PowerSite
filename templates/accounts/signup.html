@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up | PowerSite{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+    <div class="auth-card wide-auth-card">
+        <h1>Create Your Account</h1>
+        <p class="subtitle">
+            Join PowerSite to report faults, follow repairs, and stay informed about electricity issues in your area.
+        </p>
+
+        <form method="post" class="styled-form grid-two">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="error-text">{{ field.errors|join:', ' }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="full-span form-actions">
+                <button type="submit" class="full-btn">
+                    Create Account
+                </button>
+            </div>
+        </form>
+
+        <p class="auth-link">
+            Already have an account? <a href="{% url 'login' %}">Login</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

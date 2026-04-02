@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero-grid">
+    <div class="hero-card hero-main">
+        <h1>Hello {{ user.first_name|default:user.username }} 👋</h1>
+        <p class="subtitle">
+            Stay updated on electricity issues, report faults quickly, and track progress in your area.
+        </p>
+
+        <div class="status-grid">
+            <div class="status-card status-yellow">
+                <h3>Loadshedding</h3>
+                <p>Stage 2 until 16:00</p>
+            </div>
+
+            <div class="status-card status-green">
+                <h3>Current Faults</h3>
+                <p>No major faults reported</p>
+            </div>
+
+            <div class="status-card status-red">
+                <h3>Cable Theft</h3>
+                <p>1 case reported nearby</p>
+            </div>
+        </div>
+
+        <div class="action-row">
+            <a href="{% url 'report_issue' %}" class="btn-primary">Report an Issue</a>
+            <a href="{% url 'my_reports' %}" class="btn-secondary">Track My Reports</a>
+        </div>
+    </div>
+
+    <div class="hero-card map-preview-card">
+        <h2>Community Activity Map</h2>
+        <p class="subtitle">Live report markers from the database</p>
+
+        <div
+            id="dashboard-map"
+            class="map-box"
+            data-reports='[
+                {% for item in map_reports %}
+                    {
+                        "title": "{{ item.title|escapejs }}",
+                        "type": "{{ item.get_issue_type_display|escapejs }}",
+                        "status": "{{ item.get_status_display|escapejs }}",
+                        "area": "{{ item.area_name|escapejs }}",
+                        "lat": {{ item.latitude|default:"null" }},
+                        "lng": {{ item.longitude|default:"null" }}
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]'>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-lists">
+    <div class="panel">
+        <h2>My Latest Reports</h2>
+        {% if latest_reports %}
+            <div class="report-list">
+                {% for item in latest_reports %}
+                    <div class="report-item">
+                        <div>
+                            <strong>{{ item.title }}</strong>
+                            <p>{{ item.get_issue_type_display }} • {{ item.area_name }}</p>
+                        </div>
+
+                        <a href="{% url 'track_issue' item.id %}" class="link-btn">
+                            View →
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No reports submitted yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>Active Community Issues</h2>
+        {% if active_reports %}
+            <div class="report-list">
+                {% for item in active_reports %}
+                    <div class="report-item">
+                        <div>
+                            <strong>{{ item.title }}</strong>
+                            <p>Status: {{ item.get_status_display }}</p>
+                        </div>
+
+                        <span class="badge status-{{ item.status }}">
+                            {{ item.get_issue_type_display }}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No active issues right now.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PowerSite{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container">
+    <header class="navbar">
+        <div class="nav-left">
+            <span class="logo">⚡ PowerSite</span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="nav-center">
+            <a href="{% url 'dashboard' %}">Home</a>
+            <a href="{% url 'report_issue' %}">Report</a>
+            <a href="{% url 'my_reports' %}">My Reports</a>
+            <a href="{% url 'profile' %}">Profile</a>
+            <a href="{% url 'notifications' %}">Notifications</a>
+            {% if user.is_superuser or user.is_staff %}
+                <a href="{% url 'manage_reports' %}">Manage Reports</a>
+            {% endif %}
+        </div>
+
+        <div class="nav-right">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode">Dark Mode</button>
+
+            <div class="user-box">
+                {% if user_profile.profile_image %}
+                    <img src="{{ user_profile.profile_image.url }}" alt="" class="avatar-image" width="38" height="38">
+                {% else %}
+                    <div class="avatar" aria-hidden="true">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+                <span>{{ user.username }}</span>
+            </div>
+
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button class="logout-btn">Logout</button>
+            </form>
+        </div>
+
+        {% else %}
+        <div class="nav-right">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle">Dark Mode</button>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'signup' %}" class="btn-primary">Sign Up</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <main class="main-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const body = document.body;
+    const toggleButton = document.getElementById('theme-toggle');
+
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            body.classList.add('dark-mode');
+            if (toggleButton) toggleButton.textContent = 'Bright Mode';
+        } else {
+            body.classList.remove('dark-mode');
+            if (toggleButton) toggleButton.textContent = 'Dark Mode';
+        }
+    }
+
+    const savedTheme = localStorage.getItem('powersite-theme') || 'light';
+    applyTheme(savedTheme);
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            const nextTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
+            localStorage.setItem('powersite-theme', nextTheme);
+            applyTheme(nextTheme);
+        });
+    }
+});
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/map.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications | PowerSite{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Notifications</h1>
+    <p class="subtitle">Stay updated on your reports and assignments.</p>
+
+    <div class="report-list">
+        {% for item in notifications %}
+            <div class="report-item">
+                <div>
+                    <strong>{{ item.message }}</strong>
+                    <p>{{ item.created_at|date:"d M Y H:i" }}</p>
+                    {% if item.report %}
+                        <p><a href="{% url 'track_issue' item.report.id %}" class="link-btn">Open report</a></p>
+                    {% endif %}
+                </div>
+
+                {% if not item.is_read %}
+                <a href="{% url 'mark_notification_read' item.id %}" class="btn-secondary small-action-btn">
+                    Mark Read
+                </a>
+                {% else %}
+                <span class="badge status-resolved">Read</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No notifications yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
